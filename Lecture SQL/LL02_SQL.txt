@@ -1,0 +1,124 @@
+-- Creating the basic Horses table
+CREATE TABLE horses
+(Name	varchar(50),
+ Color	varchar(50),
+ Spots	varchar(3),
+ Sex	varchar(1),
+ Weight	integer);
+
+-- Inserting data into the horses table
+INSERT INTO horses (name, color, spots, sex, weight) VALUES ('Sam', 'Brown', 'No', 'F', 1500);
+INSERT INTO horses (name, color, spots, sex, weight) VALUES ('Erica', 'Yellow', 'Yes', 'F', 920);
+INSERT INTO horses (name, color, spots, sex, weight) VALUES ('John', 'Grey', 'No', 'M', 1800);
+INSERT INTO horses (name, color, spots, sex, weight) VALUES ('Trotty', 'Brown', 'Yes', 'M', 1300);
+INSERT INTO horses (name, color, spots, sex, weight) VALUES ('Rio', 'Grey', 'No', 'F', 1700);
+INSERT INTO horses (name, color, spots, sex, weight) VALUES ('Robin', 'Yellow', 'No', 'M', 1100);
+INSERT INTO horses (name, color, spots, sex, weight) VALUES ('Katy', 'Brown', 'No', 'F', 1200);
+INSERT INTO horses (name, color, spots, sex, weight) VALUES ('Pegasus', 'Brown', 'No', 'M', 1750);
+
+
+--Basic selection queries
+SELECT * FROM Horses;
+SELECT * FROM Horses WHERE sex = 'F';
+SELECT * FROM Horses WHERE color = 'Brown';
+SELECT * FROM Horses WHERE weight > 1500;
+SELECT * FROM Horses WHERE weight >= 1500;
+SELECT * FROM Horses WHERE weight >= 1500 AND color='Brown';
+
+--We do not want these queries to work, yet they do...
+INSERT INTO horses (name, color, spots, sex, weight) VALUES ('Sam', 'Black', 'Yes', 'M', 2200);
+INSERT INTO horses (name, color, spots, sex, weight) VALUES ('Pinky', 'Pink', 'No', 'M', 1050);
+INSERT INTO horses (name, color, spots, sex, weight) VALUES ('Hulk', 'Grey', 'No', 'M', 91050);
+INSERT INTO horses (name, color, spots, weight) VALUES ('Pat', 'White', 'No', 1400);
+
+-- Dropping the Horses table so we can recreate it with proper constraints
+DROP TABLE Horses;
+
+-- Creating the Horses table with all constraints:
+CREATE TABLE horses
+(Name   varchar(50) CONSTRAINT pk_horse PRIMARY KEY,
+ Color  varchar(50) DEFAULT 'UNK' CONSTRAINT chk_color CHECK (color
+        IN ('Black','White','Brown','Grey','Red','Yellow', 'UNK')),
+ Spots  varchar(3) DEFAULT 'UNK',
+ Sex    varchar(1) CONSTRAINT nn_sex NOT NULL,
+ Weight integer,
+ CONSTRAINT chk_weight CHECK (weight >= 800 AND weight <=2200),
+ CONSTRAINT chk_sex CHECK (sex IN ('M','F'))
+);
+
+--Inserting data back into the horses table (same data as before)
+INSERT INTO horses (name, color, spots, sex, weight) VALUES ('Sam', 'Brown', 'No', 'F', 1500);
+INSERT INTO horses (name, color, spots, sex, weight) VALUES ('Erica', 'Yellow', 'Yes', 'F', 920);
+INSERT INTO horses (name, color, spots, sex, weight) VALUES ('John', 'Grey', 'No', 'M', 1800);
+INSERT INTO horses (name, color, spots, sex, weight) VALUES ('Trotty', 'Brown', 'Yes', 'M', 1300);
+INSERT INTO horses (name, color, spots, sex, weight) VALUES ('Rio', 'Grey', 'No', 'F', 1700);
+INSERT INTO horses (name, color, spots, sex, weight) VALUES ('Robin', 'Yellow', 'No', 'M', 1100);
+INSERT INTO horses (name, color, spots, sex, weight) VALUES ('Katy', 'Brown', 'No', 'F', 1200);
+INSERT INTO horses (name, color, spots, sex, weight) VALUES ('Pegasus', 'Brown', 'No', 'M', 1750);
+
+
+-- Note that the queries that SHOULD NOT have worked before now do not work!
+INSERT INTO horses (name, color, spots, sex, weight) VALUES ('Sam', 'Black', 'Yes', 'M', 2200);
+INSERT INTO horses (name, color, spots, sex, weight) VALUES ('Pinky', 'Pink', 'No', 'M', 1050);
+INSERT INTO horses (name, color, spots, sex, weight) VALUES ('Hulk', 'Grey', 'No', 'M', 91050);
+INSERT INTO horses (name, color, spots, weight) VALUES ('Pat', 'White', 'No', 1400);
+
+
+-- We can modify their data, though, so that they are OK
+INSERT INTO horses (name, color, spots, sex, weight) VALUES ('Sammy', 'Black', 'Yes', 'M', 2200);
+INSERT INTO horses (name, color, spots, sex, weight) VALUES ('Pinky', 'Red', 'No', 'M', 1050);
+INSERT INTO horses (name, color, spots, sex, weight) VALUES ('Hulk', 'Grey', 'No', 'M', 2050);
+INSERT INTO horses (name, color, spots, sex, weight) VALUES ('Pat', 'White', 'No', 'F', 1400);
+
+--It we omit color or spots we get a default value. If we omit weight we get NULL
+INSERT INTO horses (name, sex) VALUES ('Betty', 'F');
+
+SELECT * FROM Horses;
+
+--We can update a record after it has been INSERTed
+UPDATE horses SET Color='White', Spots='Yes', Weight=1250 WHERE name='Betty';
+
+SELECT * FROM Horses;
+
+--We can add an attribute after creating the table using the ALTER command
+
+ALTER TABLE horses ADD owner varchar(50);
+
+-- By default the new attribute will have all NULL values. We can set a value for ALL rows like this (uncommon to do this):
+
+UPDATE horses SET owner='mgrimes';
+
+-- It would be more common to update columns using a WHERE clause:
+UPDATE horses SET owner='canderson' WHERE name = 'Erica';
+UPDATE horses SET owner='tswift' WHERE name IN ('Betty','Pinky','Rio');
+UPDATE horses SET owner='jisbell' WHERE name IN ('Katy','Robin');
+
+-- The ALTER command can also change a constraint by dropping the old one and creating a new one:
+ALTER TABLE horses DROP CONSTRAINT chk_color;
+ALTER TABLE horses ADD CONSTRAINT chk_color CHECK (color IN ('Black','White','Brown','Grey','Red','Yellow','Pink','UNK'));
+
+-- Now we can add a pink horse!
+UPDATE Horses SET color = 'Pink' WHERE name = 'Pinky';
+SELECT * FROM horses;
+
+-- By default the new constraint will check for existing conflicts. If you don't want to do this you can use the novalidate option
+ALTER TABLE horses DROP CONSTRAINT chk_color;
+ALTER TABLE horses ADD CONSTRAINT chk_color CHECK (color IN ('Black','White','Brown','Grey','Red','Yellow','UNK')) novalidate;
+
+-- ALTER also allows you to drop attributes:
+
+ALTER TABLE horses DROP column Spots;
+SELECT * FROM horses;
+
+-- You can DELETE a subset of data using a WHERE clause, or all data if you do not use WHERE
+DELETE FROM horses WHERE owner='tswift';
+SELECT * FROM horses;
+
+DELETE FROM horses;
+SELECT * FROM horses;
+
+-- To get rid of the entire table/schema, use DROP
+DROP TABLE horses;
+
+
+

@@ -1,0 +1,268 @@
+--Getting us back to a clean slate:
+DROP TABLE horses;
+DROP TABLE customers;
+
+CREATE TABLE customers
+(username varchar(50) CONSTRAINT pk_customers PRIMARY KEY,
+ Fname    varchar(50) CONSTRAINT nn_fname NOT NULL,
+ Lname    varchar(50) CONSTRAINT nn_lname NOT NULL,
+ Phone    varchar(14) CONSTRAINT nn_Phone NOT NULL
+);
+
+CREATE TABLE horses
+(Name   varchar(50) CONSTRAINT pk_horse PRIMARY KEY,
+ Color  varchar(50) DEFAULT 'UNK' CONSTRAINT chk_color CHECK (color IN
+ ('Black','White','Brown','Grey','Red','Yellow', 'UNK')),
+ Spots  varchar(3) DEFAULT 'UNK',
+ Sex    varchar(1) CONSTRAINT nn_sex NOT NULL,
+ Weight integer,
+ owner varchar(50),
+ CONSTRAINT chk_weight CHECK (weight >= 800 AND weight <=2200),
+ CONSTRAINT chk_sex CHECK (sex IN ('M','F')),
+ CONSTRAINT fk_cust FOREIGN KEY (owner) REFERENCES customers (username) ON DELETE CASCADE
+);
+
+INSERT INTO customers (username, fname, lname, phone) VALUES ('mgrimes', 'Marvin', 'Grimes', '(218) 330-8004');
+INSERT INTO customers (username, fname, lname, phone) VALUES ('canderson', 'Christine', 'Anderson', '(555) 523-9989');
+INSERT INTO customers (username, fname, lname, phone) VALUES ('tswift', 'Tina', 'Swift', '(555) 424-1313');
+INSERT INTO customers (username, fname, lname, phone) VALUES ('jisbell', 'Jason', 'Isbell', '(615) 555-5555');
+INSERT INTO customers (username, fname, lname, phone) VALUES ('ssimpson', 'Sam', 'Simpson', '(615) 387-9682');
+
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Sam', 'Brown', 'No', 'F', 1500, 'mgrimes');
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Erica', 'Yellow', 'Yes', 'F', 920, 'canderson');
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('John', 'Grey', 'No', 'M', 1800, 'mgrimes');
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Trotty', 'Brown', 'Yes', 'M', 1300, 'mgrimes');
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Rio', 'Grey', 'No', 'F', 1700, 'tswift');
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Robin', 'Yellow', 'No', 'M', 1100, 'jisbell');
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Katy', 'Brown', 'No', 'F', 1200, 'jisbell');
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Pegasus', 'Brown', 'No', 'M', 1750, 'mgrimes');
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Sammy', 'Black', 'Yes', 'M', 2200, 'mgrimes');
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Pinky', 'Red', 'No', 'M', 1050, 'tswift');
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Hulk', 'Grey', 'No', 'M', 2050, 'mgrimes');
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Pat', 'White', 'No', 'F', 1400, 'mgrimes');
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Betty', 'White', 'Yes', 'F', 1250, 'tswift');
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Shamrock', 'Black', 'No', 'M', 1400, 'ssimpson');
+
+--Onto the new stuff: creating a Many to Many relationship
+
+-- First create the Medications table with appropriate constraints
+CREATE TABLE medications
+(medcode varchar(50) CONSTRAINT pk_medications PRIMARY KEY,
+ medname varchar(50) CONSTRAINT nn_medname NOT NULL,
+ classification varchar(50) CONSTRAINT nn_classification NOT NULL,
+ cost    float(32) CONSTRAINT chk_cost CHECK (cost between 1 and 200),
+ QoH     integer,
+ QoO     integer,
+ CONSTRAINT chk_qty CHECK ((QoH + QoO) BETWEEN 10 AND 100)
+);
+
+--Now insert some medications
+INSERT INTO Medications (medcode, medname, classification, cost, qoh, qoo) values ('Flux','Flunixin Meglumine','NSAID',27,43,0);
+INSERT INTO Medications (medcode, medname, classification, cost, qoh, qoo) values ('Bute','Phenylbutazone','NSAID',19,84,0);
+INSERT INTO Medications (medcode, medname, classification, cost, qoh, qoo) values ('Oxi','Oxibuzone','NSAID',12,55,0);
+INSERT INTO Medications (medcode, medname, classification, cost, qoh, qoo) values ('Mel','Meloxicam','NSAID',6,72,0);
+INSERT INTO Medications (medcode, medname, classification, cost, qoh, qoo) values ('Pen','Penicillin','Antibiotic',38,73,0);
+INSERT INTO Medications (medcode, medname, classification, cost, qoh, qoo) values ('Doxy','Doxycycline','Antibiotic',81,89,0);
+INSERT INTO Medications (medcode, medname, classification, cost, qoh, qoo) values ('TMPS','Trimethoprim Sulfa','Antibiotic',27,50,0);
+INSERT INTO Medications (medcode, medname, classification, cost, qoh, qoo) values ('Enro','Enrofloxacin','Antibiotic',36,78,0);
+INSERT INTO Medications (medcode, medname, classification, cost, qoh, qoo) values ('Xyl','Xylazine ','Sedative',22,28,0);
+INSERT INTO Medications (medcode, medname, classification, cost, qoh, qoo) values ('Acep','Acepromazine','Sedative',33,50,0);
+INSERT INTO Medications (medcode, medname, classification, cost, qoh, qoo) values ('Fen','Fenbendazole','Dewormer',52,15,25);
+INSERT INTO Medications (medcode, medname, classification, cost, qoh, qoo) values ('Meb','Mebendazole','Dewormer',81,25,0);
+INSERT INTO Medications (medcode, medname, classification, cost, qoh, qoo) values ('Pyr','Pyrantel Embonate','Dewormer',11,29,0);
+INSERT INTO Medications (medcode, medname, classification, cost, qoh, qoo) values ('Iver','Ivermectin','Dewormer',39,21,0);
+INSERT INTO Medications (medcode, medname, classification, cost, qoh, qoo) values ('Clen','Clenbuterol','Respiratory',132,11,20);
+
+--Cannot enter a combined value greater than 100:
+
+INSERT INTO Medications (medcode, medname, classification, cost, qoh, qoo) values ('Pres','Prednisone','Corticosteroid',47,48,70);
+
+-- Fixed:
+
+INSERT INTO Medications (medcode, medname, classification, cost, qoh, qoo) values ('Pres','Prednisone','Corticosteroid',47,48,7);
+
+
+--We also cannot create a medication with a  cost greater than 200
+
+INSERT INTO Medications (medcode, medname, classification, cost, qoh, qoo) values ('Dexa','Dexamethasone ','Corticosteroid',247,18,82);
+
+--Fixed: 
+
+INSERT INTO Medications (medcode, medname, classification, cost, qoh, qoo) values ('Dexa','Dexamethasone ','Corticosteroid',47,18,82);
+
+--Now create the Order table - but there is a problem...
+
+CREATE TABLE order
+(RxNum integer CONSTRAINT pk_order PRIMARY KEY,
+ ORD_Medcode varchar (50),
+ ORD_Horsename varchar(50),
+ Dose integer DEFAULT 1,
+ Frequency integer DEFAULT 2,
+ CONSTRAINT fk_meds FOREIGN KEY (ORD_Medcode) REFERENCES medications (medcode),
+ CONSTRAINT fk_horses FOREIGN KEY (ORD_Horsename) REFERENCES horses (name) ON DELETE CASCADE
+);
+
+--ORDER is a reserved SQL Keyword, so let's call it Orders (with an S) instead:
+
+CREATE TABLE orders
+(RxNum integer CONSTRAINT pk_orders PRIMARY KEY,
+ ORD_Medcode varchar (50),
+ ORD_Horsename varchar(50),
+ Dose integer DEFAULT 1,
+ Frequency integer DEFAULT 2,
+ CONSTRAINT fk_meds FOREIGN KEY (ORD_Medcode) REFERENCES medications (medcode),
+ CONSTRAINT fk_horses FOREIGN KEY (ORD_Horsename) REFERENCES horses (name) ON DELETE CASCADE
+);
+
+-- Now INSERT some orders:
+INSERT INTO ORDERS (RxNum, ord_medcode, ord_horsename, dose, frequency) values (101,'Flux','Sam',1,2);
+INSERT INTO ORDERS (RxNum, ord_medcode, ord_horsename, dose, frequency) values (102,'Pen','Sam',1,1);
+INSERT INTO ORDERS (RxNum, ord_medcode, ord_horsename, dose, frequency) values (103,'Iver','John',2,1);
+INSERT INTO ORDERS (RxNum, ord_medcode, ord_horsename, dose, frequency) values (104,'Iver','Trotty',2,1);
+INSERT INTO ORDERS (RxNum, ord_medcode, ord_horsename, dose, frequency) values (105,'Doxy','Trotty',1,3);
+INSERT INTO ORDERS (RxNum, ord_medcode, ord_horsename, dose, frequency) values (106,'Pres','Shamrock',1,1);
+INSERT INTO ORDERS (RxNum, ord_medcode, ord_horsename, dose, frequency) values (107,'Dexa','Shamrock',2,1);
+INSERT INTO ORDERS (RxNum, ord_medcode, ord_horsename, dose, frequency) values (108,'Dexa','Betty',2,1);
+INSERT INTO ORDERS (RxNum, ord_medcode, ord_horsename, dose, frequency) values (109,'Xyl','Hulk',1,1);
+INSERT INTO ORDERS (RxNum, ord_medcode, ord_horsename, dose, frequency) values (110,'Enro','Erica',3,2);
+
+
+--We Cannot INSERT an order for a medication that does not exist, or for a horse that does not exist (FK Constraint)
+-- All values of a foreign key must be in the domain of values of the candidate key to which it refers!
+
+INSERT INTO ORDERS (RxNum, ord_medcode, ord_horsename, dose, frequency) values (999,'NottaMed','Sam',1,2);
+
+INSERT INTO ORDERS (RxNum, ord_medcode, ord_horsename, dose, frequency) values (888, 'Iver','NottaHorse',1,2);
+
+
+-- You cannot delete a medication that has been ordered for a horse
+DELETE FROM Medications WHERE medcode = 'Iver';
+
+
+-- But you CAN delete a medication that has NOT been ordered yet
+DELETE FROM Medications WHERE medcode = 'Bute';
+
+
+--If you delete a horse (Parent), all records of that horses orders (Child) are also deleted 
+--(because of the CASCADE constraint applied to the foreign key). This deletes one horse and two orders:
+DELETE FROM Horses WHERE name = 'Shamrock';
+
+
+--Inner join:
+SELECT * FROM Horses INNER JOIN orders ON name=ord_horsename 
+INNER JOIN medications ON ord_medcode = medcode;
+
+
+
+--Inner join projecting a subset of attributes:
+SELECT Horses.Name, medications.MEDNAME, orders.dose, orders.FREQUENCY  FROM Horses 
+INNER JOIN orders ON name=ord_horsename 
+INNER JOIN medications ON ord_medcode = medcode;
+
+---------------------------------------------------------------------------
+-- FINAL DDL FOR NOW ------------------------------------------------------
+---------------------------------------------------------------------------
+DROP TABLE Orders;
+DROP TABLE Medications;
+DROP TABLE Horses;
+DROP TABLE Customers;
+
+CREATE TABLE customers
+(username varchar(50) CONSTRAINT pk_customers PRIMARY KEY,
+ Fname    varchar(50) CONSTRAINT nn_fname NOT NULL,
+ Lname    varchar(50) CONSTRAINT nn_lname NOT NULL,
+ Phone    varchar(14) CONSTRAINT nn_Phone NOT NULL
+);
+
+CREATE TABLE horses
+(Name   varchar(50) CONSTRAINT pk_horse PRIMARY KEY,
+ Color  varchar(50) DEFAULT 'UNK' CONSTRAINT chk_color CHECK (color IN
+ ('Black','White','Brown','Grey','Red','Yellow', 'UNK')),
+ Spots  varchar(3) DEFAULT 'UNK',
+ Sex    varchar(1) CONSTRAINT nn_sex NOT NULL,
+ Weight integer,
+ owner varchar(50),
+ CONSTRAINT chk_weight CHECK (weight >= 800 AND weight <=2200),
+ CONSTRAINT chk_sex CHECK (sex IN ('M','F')),
+ CONSTRAINT fk_cust FOREIGN KEY (owner) REFERENCES customers (username) ON DELETE CASCADE
+);
+
+CREATE TABLE medications
+(medcode varchar(50) CONSTRAINT pk_medications PRIMARY KEY,
+ medname varchar(50) CONSTRAINT nn_medname NOT NULL,
+ classification varchar(50) CONSTRAINT nn_classification NOT NULL,
+ cost    float(32) CONSTRAINT chk_cost CHECK (cost between 1 and 200),
+ QoH     integer,
+ QoO     integer,
+ CONSTRAINT chk_qty CHECK ((QoH + QoO) BETWEEN 10 AND 100)
+);
+
+CREATE TABLE orders
+(RxNum integer CONSTRAINT pk_orders PRIMARY KEY,
+ ORD_Medcode varchar (50),
+ ORD_Horsename varchar(50),
+ Dose integer DEFAULT 1,
+ Frequency integer DEFAULT 2,
+ CONSTRAINT fk_meds FOREIGN KEY (ORD_Medcode) REFERENCES medications (medcode),
+ CONSTRAINT fk_horses FOREIGN KEY (ORD_Horsename) REFERENCES horses (name) ON DELETE CASCADE
+);
+
+INSERT INTO customers (username, fname, lname, phone) VALUES ('mgrimes', 'Marvin', 'Grimes', '(218) 330-8004');
+INSERT INTO customers (username, fname, lname, phone) VALUES ('canderson', 'Christine', 'Anderson', '(555) 523-9989');
+INSERT INTO customers (username, fname, lname, phone) VALUES ('tswift', 'Tina', 'Swift', '(555) 424-1313');
+INSERT INTO customers (username, fname, lname, phone) VALUES ('jisbell', 'Jason', 'Isbell', '(615) 555-5555');
+INSERT INTO customers (username, fname, lname, phone) VALUES ('ssimpson', 'Sam', 'Simpson', '(615) 387-9682');
+
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Sam', 'Brown', 'No', 'F', 1500, 'mgrimes');
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Erica', 'Yellow', 'Yes', 'F', 920, 'canderson');
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('John', 'Grey', 'No', 'M', 1800, 'mgrimes');
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Trotty', 'Brown', 'Yes', 'M', 1300, 'mgrimes');
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Rio', 'Grey', 'No', 'F', 1700, 'tswift');
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Robin', 'Yellow', 'No', 'M', 1100, 'jisbell');
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Katy', 'Brown', 'No', 'F', 1200, 'jisbell');
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Pegasus', 'Brown', 'No', 'M', 1750, 'mgrimes');
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Sammy', 'Black', 'Yes', 'M', 2200, 'mgrimes');
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Pinky', 'Red', 'No', 'M', 1050, 'tswift');
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Hulk', 'Grey', 'No', 'M', 2050, 'mgrimes');
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Pat', 'White', 'No', 'F', 1400, 'mgrimes');
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Betty', 'White', 'Yes', 'F', 1250, 'tswift');
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Shamrock', 'Black', 'No', 'M', 1400, 'ssimpson');
+
+INSERT INTO Medications (medcode, medname, classification, cost, qoh, qoo) values ('Flux','Flunixin Meglumine','NSAID',27,43,0);
+INSERT INTO Medications (medcode, medname, classification, cost, qoh, qoo) values ('Bute','Phenylbutazone','NSAID',19,84,0);
+INSERT INTO Medications (medcode, medname, classification, cost, qoh, qoo) values ('Oxi','Oxibuzone','NSAID',12,55,0);
+INSERT INTO Medications (medcode, medname, classification, cost, qoh, qoo) values ('Mel','Meloxicam','NSAID',6,72,0);
+INSERT INTO Medications (medcode, medname, classification, cost, qoh, qoo) values ('Pen','Penicillin','Antibiotic',38,73,0);
+INSERT INTO Medications (medcode, medname, classification, cost, qoh, qoo) values ('Doxy','Doxycycline','Antibiotic',81,89,0);
+INSERT INTO Medications (medcode, medname, classification, cost, qoh, qoo) values ('TMPS','Trimethoprim Sulfa','Antibiotic',27,50,0);
+INSERT INTO Medications (medcode, medname, classification, cost, qoh, qoo) values ('Enro','Enrofloxacin','Antibiotic',36,78,0);
+INSERT INTO Medications (medcode, medname, classification, cost, qoh, qoo) values ('Xyl','Xylazine ','Sedative',22,28,0);
+INSERT INTO Medications (medcode, medname, classification, cost, qoh, qoo) values ('Acep','Acepromazine','Sedative',33,50,0);
+INSERT INTO Medications (medcode, medname, classification, cost, qoh, qoo) values ('Fen','Fenbendazole','Dewormer',52,15,25);
+INSERT INTO Medications (medcode, medname, classification, cost, qoh, qoo) values ('Meb','Mebendazole','Dewormer',81,25,0);
+INSERT INTO Medications (medcode, medname, classification, cost, qoh, qoo) values ('Pyr','Pyrantel Embonate','Dewormer',11,29,0);
+INSERT INTO Medications (medcode, medname, classification, cost, qoh, qoo) values ('Iver','Ivermectin','Dewormer',39,21,0);
+INSERT INTO Medications (medcode, medname, classification, cost, qoh, qoo) values ('Clen','Clenbuterol','Respiratory',132,11,20);
+INSERT INTO Medications (medcode, medname, classification, cost, qoh, qoo) values ('Pres','Prednisone','Corticosteroid',47,48,7);
+INSERT INTO Medications (medcode, medname, classification, cost, qoh, qoo) values ('Dexa','Dexamethasone ','Corticosteroid',47,18,82);
+
+INSERT INTO ORDERS (RxNum, ord_medcode, ord_horsename, dose, frequency) values (101,'Flux','Sam',1,2);
+INSERT INTO ORDERS (RxNum, ord_medcode, ord_horsename, dose, frequency) values (102,'Pen','Sam',1,1);
+INSERT INTO ORDERS (RxNum, ord_medcode, ord_horsename, dose, frequency) values (103,'Iver','John',2,1);
+INSERT INTO ORDERS (RxNum, ord_medcode, ord_horsename, dose, frequency) values (104,'Iver','Trotty',2,1);
+INSERT INTO ORDERS (RxNum, ord_medcode, ord_horsename, dose, frequency) values (105,'Doxy','Trotty',1,3);
+INSERT INTO ORDERS (RxNum, ord_medcode, ord_horsename, dose, frequency) values (106,'Pres','Shamrock',1,1);
+INSERT INTO ORDERS (RxNum, ord_medcode, ord_horsename, dose, frequency) values (107,'Dexa','Shamrock',2,1);
+INSERT INTO ORDERS (RxNum, ord_medcode, ord_horsename, dose, frequency) values (108,'Dexa','Betty',2,1);
+INSERT INTO ORDERS (RxNum, ord_medcode, ord_horsename, dose, frequency) values (109,'Xyl','Hulk',1,1);
+INSERT INTO ORDERS (RxNum, ord_medcode, ord_horsename, dose, frequency) values (110,'Enro','Erica',3,2);
+
+
+
+
+
+
+
+
+
+

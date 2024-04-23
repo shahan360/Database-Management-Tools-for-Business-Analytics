@@ -1,0 +1,185 @@
+-- Here is the DDL to get us to the same starting point for today:
+DROP TABLE horses;
+
+CREATE TABLE horses
+(Name   varchar(50) CONSTRAINT pk_horse PRIMARY KEY,
+ Color  varchar(50) DEFAULT 'UNK' CONSTRAINT chk_color CHECK (color IN
+ ('Black','White','Brown','Grey','Red','Yellow', 'UNK')),
+ Spots  varchar(3) DEFAULT 'UNK',
+ Sex    varchar(1) CONSTRAINT nn_sex NOT NULL,
+ Weight integer,
+ owner varchar(50),
+ phone varchar(14),
+ CONSTRAINT chk_weight CHECK (weight >= 800 AND weight <=2200),
+ CONSTRAINT chk_sex CHECK (sex IN ('M','F'))
+);
+
+
+INSERT INTO horses (name, color, spots, sex, weight, owner, phone) VALUES ('Sam', 'Brown', 'No', 'F', 1500, 'mgrimes', '(218) 330-8004');
+INSERT INTO horses (name, color, spots, sex, weight, owner, phone) VALUES ('Erica', 'Yellow', 'Yes', 'F', 920, 'canderson', '(555) 523-9989');
+INSERT INTO horses (name, color, spots, sex, weight, owner, phone) VALUES ('John', 'Grey', 'No', 'M', 1800, 'mgrimes', '(218) 330-8004');
+INSERT INTO horses (name, color, spots, sex, weight, owner, phone) VALUES ('Trotty', 'Brown', 'Yes', 'M', 1300, 'mgrimes', '(218) 330-8004');
+INSERT INTO horses (name, color, spots, sex, weight, owner, phone) VALUES ('Rio', 'Grey', 'No', 'F', 1700, 'tswift', '(555) 424-1313');
+INSERT INTO horses (name, color, spots, sex, weight, owner, phone) VALUES ('Robin', 'Yellow', 'No', 'M', 1100, 'jisbell', '(615) 555-5555');
+INSERT INTO horses (name, color, spots, sex, weight, owner, phone) VALUES ('Katy', 'Brown', 'No', 'F', 1200, 'jisbell', '(615) 555-5555');
+INSERT INTO horses (name, color, spots, sex, weight, owner, phone) VALUES ('Pegasus', 'Brown', 'No', 'M', 1750, 'mgrimes', '(218) 330-8004');
+INSERT INTO horses (name, color, spots, sex, weight, owner, phone) VALUES ('Sammy', 'Black', 'Yes', 'M', 2200, 'mgrimes', '(218) 330-8004');
+INSERT INTO horses (name, color, spots, sex, weight, owner, phone) VALUES ('Pinky', 'Red', 'No', 'M', 1050, 'tswift', '(555) 424-1313');
+INSERT INTO horses (name, color, spots, sex, weight, owner, phone) VALUES ('Hulk', 'Grey', 'No', 'M', 2050, 'mgrimes', '(218) 330-8004');
+INSERT INTO horses (name, color, spots, sex, weight, owner, phone) VALUES ('Pat', 'White', 'No', 'F', 1400, 'mgrimes', '(218) 330-8004');
+INSERT INTO horses (name, color, spots, sex, weight, owner, phone) VALUES ('Betty', 'White', 'Yes', 'F', 1250, 'tswift', '(555) 424-1313');
+
+-- Turns out this design is not very good, so let's DROP the horses table and start over with our better understanding
+
+DROP TABLE horses;
+
+-- Now let's create a table for customers and insert the values
+
+CREATE TABLE customers
+(username   varchar(50) CONSTRAINT pk_customers PRIMARY KEY,
+ Fname    varchar(50) CONSTRAINT nn_fname NOT NULL,
+ Lname    varchar(50) CONSTRAINT nn_lname NOT NULL,
+ Phone    varchar(14) CONSTRAINT nn_Phone NOT NULL
+);
+
+INSERT INTO customers (username, fname, lname, phone) VALUES ('mgrimes', 'Marvin', 'Grimes', '(218) 330-8004');
+INSERT INTO customers (username, fname, lname, phone) VALUES ('canderson', 'Christine', 'Anderson', '(555) 523-9989');
+INSERT INTO customers (username, fname, lname, phone) VALUES ('tswift', 'Tina', 'Swift', '(555) 424-1313');
+INSERT INTO customers (username, fname, lname, phone) VALUES ('jisbell', 'Jason', 'Isbell', '(615) 555-5555');
+
+-- and create the Horses table with a FK that establishes the relationship with customers!
+
+CREATE TABLE horses
+(Name   varchar(50) CONSTRAINT pk_horse PRIMARY KEY,
+ Color  varchar(50) DEFAULT 'UNK' CONSTRAINT chk_color CHECK (color IN
+ ('Black','White','Brown','Grey','Red','Yellow', 'UNK')),
+ Spots  varchar(3) DEFAULT 'UNK',
+ Sex    varchar(1) CONSTRAINT nn_sex NOT NULL,
+ Weight integer,
+ owner varchar(50),
+ CONSTRAINT chk_weight CHECK (weight >= 800 AND weight <=2200),
+ CONSTRAINT chk_sex CHECK (sex IN ('M','F')),
+ CONSTRAINT fk_cust FOREIGN KEY (owner) REFERENCES customers (username)
+);
+
+
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Sam', 'Brown', 'No', 'F', 1500, 'mgrimes');
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Erica', 'Yellow', 'Yes', 'F', 920, 'canderson');
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('John', 'Grey', 'No', 'M', 1800, 'mgrimes');
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Trotty', 'Brown', 'Yes', 'M', 1300, 'mgrimes');
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Rio', 'Grey', 'No', 'F', 1700, 'tswift');
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Robin', 'Yellow', 'No', 'M', 1100, 'jisbell');
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Katy', 'Brown', 'No', 'F', 1200, 'jisbell');
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Pegasus', 'Brown', 'No', 'M', 1750, 'mgrimes');
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Sammy', 'Black', 'Yes', 'M', 2200, 'mgrimes');
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Pinky', 'Red', 'No', 'M', 1050, 'tswift');
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Hulk', 'Grey', 'No', 'M', 2050, 'mgrimes');
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Pat', 'White', 'No', 'F', 1400, 'mgrimes');
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Betty', 'White', 'Yes', 'F', 1250, 'tswift');
+
+SELECT * FROM Horses;
+
+SELECT * FROM Customers;
+
+-- Introducing the INNER JOIN!
+
+SELECT * FROM Horses INNER JOIN Customers ON Horses.owner = Customers.username;
+
+-- We cannot INSERT a new horse that has an owner that is not in the customers table...
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Shamrock', 'Black', 'No', 'M', 1400, 'ssimpson');
+
+--So first INSERT the owner, THEN the Horse
+INSERT INTO customers (username, fname, lname, phone) VALUES ('ssimpson', 'Sam', 'Simpson', '(615) 387-9682');
+
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Shamrock', 'Black', 'No', 'M', 1400, 'ssimpson');
+
+SELECT * FROM Horses INNER JOIN Customers ON Horses.owner = Customers.username;
+
+-- We cannot delete a customer than owns horses (referential integrity) - this will not work, since tswift owns horses
+DELETE FROM customers WHERE username = 'tswift';
+
+--But we can delete tswift, then delete the horses!
+DELETE FROM horses WHERE owner = 'tswift';
+
+DELETE FROM customers WHERE username = 'tswift';
+
+SELECT * FROM Horses INNER JOIN Customers ON Horses.owner = Customers.username;
+
+
+
+--If we want to change from the "Restrict" to "Cascade" we can drop then recreate the FK constraint (we could also do this in the initial DDL)
+ALTER TABLE Horses drop CONSTRAINT fk_cust;
+
+ALTER TABLE Horses ADD CONSTRAINT fk_cust FOREIGN KEY (owner) REFERENCES Customers (Username) ON DELETE CASCADE;
+
+--Now if we delete a customer that owns horses, not only is the customer delete, but so are all the horses (even though it says "one row deleted")
+
+SELECT * FROM Horses;
+
+DELETE FROM customers WHERE username = 'jisbell';
+
+SELECT * FROM Horses;
+
+-- We cannot drop the Customers table while horses references it:
+DROP TABLE Customers;
+
+-- But we can drop Horses first, which drops the FK constraint, then we can drop customers.
+DROP TABLE Horses;
+DROP TABLE Customers;
+
+-- We must create Customers before we create Horses since Horses references Customers
+CREATE TABLE horses
+(Name   varchar(50) CONSTRAINT pk_horse PRIMARY KEY,
+ Color  varchar(50) DEFAULT 'UNK' CONSTRAINT chk_color CHECK (color IN
+ ('Black','White','Brown','Grey','Red','Yellow', 'UNK')),
+ Spots  varchar(3) DEFAULT 'UNK',
+ Sex    varchar(1) CONSTRAINT nn_sex NOT NULL,
+ Weight integer,
+ owner varchar(50),
+ CONSTRAINT chk_weight CHECK (weight >= 800 AND weight <=2200),
+ CONSTRAINT chk_sex CHECK (sex IN ('M','F')),
+ CONSTRAINT fk_cust FOREIGN KEY (owner) REFERENCES customers (username) ON DELETE CASCADE
+);
+
+-- But this will work - here is the final DDL we are ending with for the day (with the Cascade rule in place):
+CREATE TABLE customers
+(username   varchar(50) CONSTRAINT pk_customers PRIMARY KEY,
+ Fname    varchar(50) CONSTRAINT nn_fname NOT NULL,
+ Lname    varchar(50) CONSTRAINT nn_lname NOT NULL,
+ Phone    varchar(14) CONSTRAINT nn_Phone NOT NULL
+);
+
+CREATE TABLE horses
+(Name   varchar(50) CONSTRAINT pk_horse PRIMARY KEY,
+ Color  varchar(50) DEFAULT 'UNK' CONSTRAINT chk_color CHECK (color IN
+ ('Black','White','Brown','Grey','Red','Yellow', 'UNK')),
+ Spots  varchar(3) DEFAULT 'UNK',
+ Sex    varchar(1) CONSTRAINT nn_sex NOT NULL,
+ Weight integer,
+ owner varchar(50),
+ CONSTRAINT chk_weight CHECK (weight >= 800 AND weight <=2200),
+ CONSTRAINT chk_sex CHECK (sex IN ('M','F')),
+ CONSTRAINT fk_cust FOREIGN KEY (owner) REFERENCES customers (username) ON DELETE CASCADE
+);
+
+--Insert all the data we've used so far:
+INSERT INTO customers (username, fname, lname, phone) VALUES ('mgrimes', 'Marvin', 'Grimes', '(218) 330-8004');
+INSERT INTO customers (username, fname, lname, phone) VALUES ('canderson', 'Christine', 'Anderson', '(555) 523-9989');
+INSERT INTO customers (username, fname, lname, phone) VALUES ('tswift', 'Tina', 'Swift', '(555) 424-1313');
+INSERT INTO customers (username, fname, lname, phone) VALUES ('jisbell', 'Jason', 'Isbell', '(615) 555-5555');
+INSERT INTO customers (username, fname, lname, phone) VALUES ('ssimpson', 'Sam', 'Simpson', '(615) 387-9682');
+
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Sam', 'Brown', 'No', 'F', 1500, 'mgrimes');
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Erica', 'Yellow', 'Yes', 'F', 920, 'canderson');
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('John', 'Grey', 'No', 'M', 1800, 'mgrimes');
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Trotty', 'Brown', 'Yes', 'M', 1300, 'mgrimes');
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Rio', 'Grey', 'No', 'F', 1700, 'tswift');
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Robin', 'Yellow', 'No', 'M', 1100, 'jisbell');
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Katy', 'Brown', 'No', 'F', 1200, 'jisbell');
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Pegasus', 'Brown', 'No', 'M', 1750, 'mgrimes');
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Sammy', 'Black', 'Yes', 'M', 2200, 'mgrimes');
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Pinky', 'Red', 'No', 'M', 1050, 'tswift');
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Hulk', 'Grey', 'No', 'M', 2050, 'mgrimes');
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Pat', 'White', 'No', 'F', 1400, 'mgrimes');
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Betty', 'White', 'Yes', 'F', 1250, 'tswift');
+INSERT INTO horses (name, color, spots, sex, weight, owner) VALUES ('Shamrock', 'Black', 'No', 'M', 1400, 'ssimpson');
